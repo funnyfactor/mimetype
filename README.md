@@ -4,7 +4,7 @@ The ultimate javascript content-type utility.
 
 ## Install
 
-To start using GJSON, install Go and run `go get`:
+To start using mimetype, install Go and run `go get`:
 
 ```sh
 $ go get -u github.com/funnyfactor/mimetype
