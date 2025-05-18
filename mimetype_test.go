@@ -1,6 +1,8 @@
 package mimetype
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestExtensionByType(t *testing.T) {
 	ext := ExtensionByType("video/mp4")

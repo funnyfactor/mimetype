@@ -24,18 +24,23 @@ func init() {
 	}
 }
 
-// ExtensionByType returns the default extension for a MIME type.
+// ExtensionByType returns the default extension for a MIME type or Content-Type value.
 // If the MIME type is not found or invalid, it returns an empty string.
 func ExtensionByType(mimeType string) string {
+	mimeType = strings.TrimSpace(mimeType)
+
+	// Remove any charset parameter
+	if idx := strings.Index(mimeType, ";"); idx != -1 {
+		mimeType = mimeType[:idx]
+	}
+
+	// If the MIME type is empty, return an empty string
 	if mimeType == "" {
 		return ""
 	}
 
-	// Convert the MIME type to lowercase to ensure case-insensitive matching
-	mimeType = strings.ToLower(mimeType)
-
 	// Retrieve the MimeType struct from the map
-	if mt, exists := mimeTypes[mimeType]; exists && len(mt.Extensions) > 0 {
+	if mt, exists := mimeTypes[strings.ToLower(mimeType)]; exists && len(mt.Extensions) > 0 {
 		// Return the first extension as the default
 		return mt.Extensions[0]
 	}
