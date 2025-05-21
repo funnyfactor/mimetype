@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type MimeType struct {
+type mime struct {
 	Extensions   []string // known extensions associated with this mime type.
 	Compressible bool     // whether a file of this type can be gzipped.
 	Charset      string   // the default charset associated with this type, if any.
@@ -16,35 +16,68 @@ type MimeType struct {
 //go:embed db.json
 var db []byte // the JSON file is a map lookup for lowercased mime types
 
-var mimeTypes = map[string]MimeType{}
+var mimes = map[string]mime{}                 // mime type -> mime
+var extensionToMimeType = map[string]string{} // extension -> mime type
 
 func init() {
-	if err := json.Unmarshal(db, &mimeTypes); err != nil {
+	if err := json.Unmarshal(db, &mimes); err != nil {
 		panic(err)
 	}
+	buildExtensionToMimeTypeMap()
+	db = nil // free up memory
 }
 
 // ExtensionByType returns the default extension for a MIME type or Content-Type value.
 // If the MIME type is not found or invalid, it returns an empty string.
 func ExtensionByType(mimeType string) string {
-	mimeType = strings.TrimSpace(mimeType)
-
-	// Remove any charset parameter
+	// Remove charset parameter and trim spaces
 	if idx := strings.Index(mimeType, ";"); idx != -1 {
 		mimeType = mimeType[:idx]
 	}
-
-	// If the MIME type is empty, return an empty string
+	mimeType = strings.TrimSpace(strings.ToLower(mimeType))
 	if mimeType == "" {
 		return ""
 	}
 
-	// Retrieve the MimeType struct from the map
-	if mt, exists := mimeTypes[strings.ToLower(mimeType)]; exists && len(mt.Extensions) > 0 {
-		// Return the first extension as the default
-		return mt.Extensions[0]
+	if mime := mimes[mimeType]; len(mime.Extensions) > 0 {
+		return mime.Extensions[0]
+	}
+	return ""
+}
+
+// TypeByExtension returns the MIME type for a given file extension.
+// If the extension is not found or invalid, it returns an empty string.
+func TypeByExtension(ext string) string {
+	ext = strings.TrimSpace(ext)
+	if ext == "" {
+		return ""
 	}
 
-	// Return an empty string if no extension is found
-	return ""
+	// Remove leading dot if present
+	ext = strings.TrimPrefix(ext, ".")
+	return extensionToMimeType[ext]
+}
+
+// buildExtensionToMimeTypeMap creates a mapping from file extensions to MIME types
+func buildExtensionToMimeTypeMap() {
+	for mimeType, mime := range mimes {
+		if len(mime.Extensions) == 0 {
+			continue
+		}
+
+		for _, ext := range mime.Extensions {
+			// If the extension is already mapped, check which MIME type has higher score
+			if existingType, exists := extensionToMimeType[ext]; exists {
+				existingScore := calculateMimeScore(existingType, mimes[existingType].Source)
+				newScore := calculateMimeScore(mimeType, mime.Source)
+
+				// If new type has higher score, update the mapping
+				if newScore > existingScore {
+					extensionToMimeType[ext] = mimeType
+				}
+			} else {
+				extensionToMimeType[ext] = mimeType
+			}
+		}
+	}
 }

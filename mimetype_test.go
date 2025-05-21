@@ -1,6 +1,7 @@
 package mimetype
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -19,4 +20,16 @@ func TestExtensionByType(t *testing.T) {
 	if ext != "ogx" {
 		t.Errorf("expected ogx, got %s", ext)
 	}
+}
+
+func TestTypeByExtension(t *testing.T) {
+	mimetype := TypeByExtension(".m4a")
+	if mimetype != "audio/mp4" {
+		t.Errorf("expected audio/mp4, got %s", mimetype)
+	}
+}
+
+func TestCalculateMimeScore(t *testing.T) {
+	score := calculateMimeScore("video/mp4", "nginx")
+	fmt.Println(score)
 }
