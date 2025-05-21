@@ -51,29 +51,22 @@ func calculateMimeScore(mimeType string, source string) float64 {
 		return 0
 	}
 
-	type_, subtype := parts[0], parts[1]
+	// Extract facet and get scores
+	facet := facetRegex.ReplaceAllString(parts[1], "$1")
+	facetScore := getScore(facetScores, facet)
+	sourceScore := getScore(sourceScores, source)
+	typeScore := getScore(typeScores, parts[0])
 
-	// Extract facet from subtype
-	facet := facetRegex.ReplaceAllString(subtype, "$1")
-
-	// Calculate scores
-	facetScore, ok := facetScores[facet]
-	if !ok {
-		facetScore = facetScores[""]
-	}
-
-	sourceScore, ok := sourceScores[source]
-	if !ok {
-		sourceScore = sourceScores[""]
-	}
-
-	typeScore, ok := typeScores[type_]
-	if !ok {
-		typeScore = typeScores[""]
-	}
-
-	// All else being equal prefer shorter types
+	// Prefer shorter types
 	lengthScore := 1 - float64(len(mimeType))/100
 
 	return facetScore + sourceScore + typeScore + lengthScore
+}
+
+// getScore returns the score for a key, or the default score if key doesn't exist
+func getScore(scores map[string]float64, key string) float64 {
+	if score, ok := scores[key]; ok {
+		return score
+	}
+	return scores[""]
 }

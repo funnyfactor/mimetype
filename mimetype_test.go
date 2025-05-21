@@ -30,6 +30,6 @@ func TestTypeByExtension(t *testing.T) {
 }
 
 func TestCalculateMimeScore(t *testing.T) {
-	score := calculateMimeScore("video/mp4", "nginx")
+	score := calculateMimeScore("application/vnd.ms-excel", "nginx")
 	fmt.Println(score)
 }
