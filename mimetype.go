@@ -53,7 +53,7 @@ func ExtensionByType(mimeType string) string {
 	if idx := strings.Index(mimeType, ";"); idx != -1 {
 		mimeType = mimeType[:idx]
 	}
-	mimeType = strings.TrimSpace(strings.ToLower(mimeType))
+	mimeType = strings.ToLower(strings.TrimSpace(mimeType))
 	if mimeType == "" {
 		return ""
 	}
@@ -68,12 +68,9 @@ func ExtensionByType(mimeType string) string {
 // Supports both extensions with a leading dot (e.g., .mp4) and without (e.g., mp4).
 // If the extension is not found or invalid, it returns an empty string.
 func TypeByExtension(ext string) string {
-	ext = strings.TrimSpace(ext)
+	ext = strings.ToLower(strings.TrimPrefix(strings.TrimSpace(ext), "."))
 	if ext == "" {
 		return ""
 	}
-
-	// Remove leading dot if present
-	ext = strings.TrimPrefix(ext, ".")
 	return extToType[ext]
 }

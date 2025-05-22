@@ -6,7 +6,7 @@ import (
 )
 
 func TestExtensionByType(t *testing.T) {
-	ext := ExtensionByType("video/mp4")
+	ext := ExtensionByType("VIDEO/MP4")
 	if ext != "mp4" {
 		t.Errorf("expected mp4, got %s", ext)
 	}
@@ -23,7 +23,7 @@ func TestExtensionByType(t *testing.T) {
 }
 
 func TestTypeByExtension(t *testing.T) {
-	mimetype := TypeByExtension(".m4a")
+	mimetype := TypeByExtension(".M4A")
 	if mimetype != "audio/mp4" {
 		t.Errorf("expected audio/mp4, got %s", mimetype)
 	}
